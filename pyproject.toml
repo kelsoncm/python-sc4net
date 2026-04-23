@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sc4net"
+version = "1.2.0"
+description = "Shortcuts for use with Python stdlib HTTP and FTP"
+readme = "README.md"
+license = { file = "LICENSE.md" }
+authors = [{ name = "Kelson da Costa Medeiros", email = "kelsoncm@gmail.com" }]
+keywords = ["shortcuts", "http", "ftp", "stdlib"]
+requires-python = ">=3.10"
+dependencies = []
+classifiers = []
+
+[project.urls]
+Homepage = "https://github.com/kelsoncm/sc4net"
+"Download URL" = "https://github.com/kelsoncm/sc4net/releases"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["sc4net*"]
+
+[tool.black]
+line-length = 127
+
+[tool.isort]
+profile = "black"
+line_length = 127
+
+[tool.bandit]
+exclude_dirs = [".venv"]
+
+[tool.pytest.ini_options]
+addopts = "--tb=short"
+
+[tool.coverage.run]
+source = ["sc4net"]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-cov", "pyftpdlib", "flake8", "flake8-bandit", "black", "isort", "bandit", "pre-commit", "pytest-coverage-gate"]
+docs = ["mkdocs>=1.6", "mkdocs-material>=9.5"]

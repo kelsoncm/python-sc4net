@@ -2,12 +2,7 @@
 
 ## Supported versions
 
-This repository contains two packages with independent releases:
-
-* sc4py
-* sc4net
-
-Security fixes are applied to the latest published version of each package.
+Security fixes are applied to the latest published version of sc4net.
 Older versions may not receive patches.
 
 ## Reporting a vulnerability

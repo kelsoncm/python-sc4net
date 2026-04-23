@@ -28,6 +28,8 @@ from unittest.mock import patch
 from zipfile import ZipFile, ZipInfo
 
 from sc4net import (
+    delete,
+    delete_json,
     get,
     get_json,
     get_zip,
@@ -35,6 +37,8 @@ from sc4net import (
     get_zip_csv_content,
     post,
     post_json,
+    put,
+    put_json,
 )
 
 from .mocks import FILE_NOT_FOUND_ERROR_MESSAGE, mock_ftpd, mock_httpd
@@ -160,3 +164,92 @@ class TestPythonBrfiedShortcutSyncHttp(TestCase):
             {"name": "kelson"},
             post_json(self.echo_json_url, json_data={"name": "kelson"}),
         )
+
+
+class TestZEdgeCases(TestCase):
+    """Covers edge-case branches not exercised by TestPythonBrfiedShortcutSyncHttp.
+
+    Relies on the HTTP (port 1234) and FTP (port 2121) mock servers started by
+    TestPythonBrfiedShortcutSyncHttp.setUpClass, which runs alphabetically first.
+    """
+
+    http_root = "http://localhost:1234"
+
+    def setUp(self):
+        self.file01_csv_url = self.http_root + "/file01.csv"
+        self.echo_url = self.http_root + "/echo"
+        self.echo_json_url = self.http_root + "/echo.json"
+
+    # -- _merge_headers: branch where headers is not None (line 64) -----------
+
+    def test_get_with_custom_headers(self):
+        self.assertEqual(
+            FILE01_CSV_EXPECTED,
+            get(self.file01_csv_url, headers={"X-Test": "1"}),
+        )
+
+    # -- _validate_web_url: invalid scheme (line 71) --------------------------
+
+    def test_get_invalid_url_scheme(self):
+        self.assertRaises(HTTPException, get, "file:///etc/hosts")
+
+    # -- _ftp_get_with_stdlib: hostname is None (line 78) ---------------------
+
+    def test_ftp_no_hostname(self):
+        self.assertRaises(HTTPException, get, "ftp:///ping.txt")
+
+    # -- _ftp_get_with_stdlib: empty path (line 85) ---------------------------
+
+    def test_ftp_empty_path(self):
+        self.assertRaises(HTTPException, get, "ftp://localhost:2121/")
+
+    # -- _ftp_get_with_stdlib: timeout branch (line 92) -----------------------
+
+    def test_ftp_with_timeout(self):
+        self.assertEqual("pong", get("ftp://localhost:2121/ping.txt", timeout=30))
+
+    # -- _ftp_get_with_stdlib: except Exception (lines 97-98) ----------------
+
+    def test_ftp_connection_error(self):
+        with patch("sc4net.FTP", side_effect=Exception("forced ftp error")):
+            self.assertRaises(HTTPException, get, "ftp://localhost:2121/ping.txt")
+
+    # -- _http_get_with_stdlib: URLError (lines 109-110) ----------------------
+
+    def test_http_url_error(self):
+        from urllib.error import URLError
+
+        with patch("sc4net.urlopen", side_effect=URLError("name resolution failed")):
+            self.assertRaises(HTTPException, get, self.file01_csv_url)
+
+    # -- _build_post_payload: bytes branch (line 125) -------------------------
+
+    def test_post_with_bytes_data(self):
+        self.assertEqual("raw", post(self.echo_url, data=b"raw"))
+
+    # -- _build_post_payload: fallback str(data) (line 134) ------------------
+
+    def test_post_with_fallback_data(self):
+        self.assertEqual("42", post(self.echo_url, data=42))
+
+    # -- post: URLError (lines 227-228) --------------------------------------
+
+    def test_post_url_error(self):
+        from urllib.error import URLError
+
+        with patch("sc4net.urlopen", side_effect=URLError("unreachable")):
+            self.assertRaises(HTTPException, post, self.echo_url, b"x")
+
+    # -- Not implemented (lines 258, 270, 274, 278) --------------------------
+
+    def test_put_not_implemented(self):
+        self.assertRaises(NotImplementedError, put, self.echo_url)
+
+    def test_put_json_not_implemented(self):
+        self.assertRaises(NotImplementedError, put_json, self.echo_url)
+
+    def test_delete_not_implemented(self):
+        self.assertRaises(NotImplementedError, delete, self.echo_url)
+
+    def test_delete_json_not_implemented(self):
+        self.assertRaises(NotImplementedError, delete_json, self.echo_url)
