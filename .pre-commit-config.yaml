@@ -1,41 +1,54 @@
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: \.fwf$|tests\/assets\/example01\.rst|tests\/assets\/example01\.rst\$
+      - id: end-of-file-fixer
+        exclude: \.fwf$|tests\/assets\/example01\.rst|tests\/assets\/example01\.rst$
+      - id: check-yaml
+      - id: check-added-large-files
+
   - repo: https://github.com/psf/black
-    rev: 24.10.0
+    rev: 26.3.1
     hooks:
       - id: black
-        stages: [pre-commit]
+        exclude: \.fwf$
 
-  - repo: https://github.com/PyCQA/isort
-    rev: 8.0.1
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.11
     hooks:
-      - id: isort
-        stages: [pre-commit]
+      - id: ruff
+        args: [--fix]
+        exclude: \.fwf$
 
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.8.3
+  - repo: https://github.com/PyCQA/doc8
+    rev: v2.0.0
     hooks:
-      - id: bandit
-        args: ["-c", "pyproject.toml"]
-        stages: [pre-commit]
+      - id: doc8
+        args: ["--max-line-length=120"]
+        exclude: tests/assets/example01\.rst
 
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.1.1
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.48.0
     hooks:
-      - id: flake8
-        additional_dependencies: [flake8-bandit]
-        stages: [pre-commit]
+      - id: markdownlint
+        args: ["--fix"]
 
   - repo: local
     hooks:
-      - id: run-tests-with-coverage
-        name: Run tests and generate coverage.xml
-        entry: python -m pytest --cov=sc4net --cov-report=xml -q
+      - id: pytest
+        name: pytest
+        stages: [pre-push]
         language: system
+        entry: pytest --cov=sc4net --cov-report=xml:coverage.xml --cov-report=term-missing
         pass_filenames: false
-        stages: [pre-push]
-
-  - repo: https://github.com/kelsoncm/pytest-coverage-gate
-    rev: v1.0.3
-    hooks:
+        always_run: true
       - id: pytest-coverage-gate
+        name: pytest-coverage-gate
         stages: [pre-push]
+        entry: python -m coverage_gate --coverage-xml=coverage.xml --baseline=.coverage-baseline
+        language: python
+        pass_filenames: false
+        always_run: true
+        additional_dependencies: ['pytest-coverage-gate>=1.0.3']
