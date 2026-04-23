@@ -1,5 +1,5 @@
-sc4py
-=====
+sc4net
+======
 
 .. toctree::
    :maxdepth: 4
