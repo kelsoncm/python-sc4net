@@ -12,39 +12,58 @@ authors = [{ name = "Kelson da Costa Medeiros", email = "kelsoncm@gmail.com" }]
 keywords = ["shortcuts", "http", "ftp", "stdlib"]
 requires-python = ">=3.10"
 dependencies = []
-classifiers = []
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=4.6.0",
+    "black>=26.3.1",
+    "ruff>=0.15.11",
+    "doc8>=2.0.0",
+    "pytest>=9.0.3",
+    "pytest-cov>=7.1.0",
+    "python-dotenv>=1.2.2",
+    "pytest-coverage-gate>=1.0.3",
+    "responses>=0.26.0",
+    "pytest-xdist>=3.8.0",
+]
 
 [project.urls]
-Homepage = "https://github.com/kelsoncm/sc4net"
-"Download URL" = "https://github.com/kelsoncm/sc4net/releases"
+Homepage = "https://github.com/kelsoncm/python-sc4net"
+"Bug Tracker" = "https://github.com/kelsoncm/python-sc4net/issues"
+Download = "https://github.com/kelsoncm/python-sc4net/releases/"
+Docs = "https://kelsoncm.github.io/python-sc4net/"
+
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["sc4net*"]
-
-[tool.black]
-line-length = 127
-
-[tool.isort]
-profile = "black"
-line_length = 127
-
-[tool.bandit]
-exclude_dirs = [".venv"]
-
-[tool.pytest.ini_options]
-addopts = "--tb=short"
+include = ["sc4net"]
 
 [tool.coverage.run]
 source = ["sc4net"]
+omit = ["tests/*", "sandbox/*"]
 
 [tool.coverage.report]
-precision = 2
+fail_under = 100
 show_missing = true
 
-[tool.coverage.xml]
-output = "coverage.xml"
+[tool.ruff]
+line-length = 120
+force-exclude = true
 
-[project.optional-dependencies]
-dev = ["pytest", "pytest-cov", "pyftpdlib", "flake8", "flake8-bandit", "black", "isort", "bandit", "pre-commit", "pytest-coverage-gate"]
-docs = ["mkdocs>=1.6.1", "mkdocs-material>=9.7.6"]
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "S"]
+
+[tool.black]
+line-length = 120
