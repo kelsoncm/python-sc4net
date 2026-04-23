@@ -1,0 +1,33 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.13, pytest-9.0.3, pluggy-1.6.0
+rootdir: C:\Users\kelson\projetos\PESSOAL\python-sc4net
+configfile: pyproject.toml
+plugins: cov-7.1.0
+collected 28 items
+
+tests\test_invalid_scheme.py ..                                          [  7%]
+tests\test_mock_http_server_errors.py F.                                 [ 14%]
+tests\test_net_sync.py ........................                          [100%]
+
+================================== FAILURES ===================================
+______________________ test_invalid_filename_returns_404 ______________________
+tests\test_mock_http_server_errors.py:32: in test_invalid_filename_returns_404
+    with pytest.raises(Exception) as excinfo:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'Exception'>
+=============================== tests coverage ================================
+______________ coverage: platform win32, python 3.13.13-final-0 _______________
+
+Name                                    Stmts   Miss   Cover   Missing
+----------------------------------------------------------------------
+sc4net\__init__.py                        134      1  99.25%   257
+tests\__init__.py                           0      0 100.00%
+tests\mocks.py                             65      4  93.85%   78-79, 84-85
+tests\test_invalid_scheme.py               18      0 100.00%
+tests\test_mock_http_server_errors.py      40      6  85.00%   34-37, 46-47
+tests\test_net_sync.py                    110      0 100.00%
+----------------------------------------------------------------------
+TOTAL                                     367     11  97.00%
+=========================== short test summary info ===========================
+FAILED tests/test_mock_http_server_errors.py::test_invalid_filename_returns_404
+======================== 1 failed, 27 passed in 53.79s ========================

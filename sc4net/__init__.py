@@ -310,7 +310,7 @@ def _build_post_payload(data, json_data, request_headers, encoding):
     return str(data).encode(encoding or "utf-8")
 
 
-def requests_get(url, headers=None, encoding: Optional[str] = "utf-8", decode=True, **kwargs):
+def get(url, headers=None, encoding: Optional[str] = "utf-8", decode=True, **kwargs):
     """
     Download content from an HTTP(S) or FTP URL.
 
@@ -346,9 +346,6 @@ def requests_get(url, headers=None, encoding: Optional[str] = "utf-8", decode=Tr
         byte_array_content = _http_get_with_stdlib(url, headers=headers, timeout=timeout)
 
     return byte_array_content.decode(encoding) if decode and encoding is not None else byte_array_content
-
-
-get = requests_get
 
 
 def get_json(url, headers=None, encoding="utf-8", json_kwargs=None, **kwargs):
