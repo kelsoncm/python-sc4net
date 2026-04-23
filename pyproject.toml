@@ -47,4 +47,4 @@ output = "coverage.xml"
 
 [project.optional-dependencies]
 dev = ["pytest", "pytest-cov", "pyftpdlib", "flake8", "flake8-bandit", "black", "isort", "bandit", "pre-commit", "pytest-coverage-gate"]
-docs = ["mkdocs>=1.6.1", "mkdocs-material>=9.5"]
+docs = ["mkdocs>=1.6.1", "mkdocs-material>=9.7.6"]
