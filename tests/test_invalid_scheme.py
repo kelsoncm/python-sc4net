@@ -1,7 +1,8 @@
-import pytest
-from sc4net import get, post
-
 import sys
+
+import pytest
+
+from sc4net import get, post
 
 import_types = (Exception,)
 if sys.version_info >= (3, 11):

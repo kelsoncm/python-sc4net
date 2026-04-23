@@ -1,31 +1,9 @@
-"""
-The MIT License (MIT)
-
-Copyright (c) 2015 kelsoncm
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-"""
-
 from http.client import HTTPException
 from unittest import TestCase
 from unittest.mock import patch
 from zipfile import ZipFile, ZipInfo
+
+import pytest
 
 from sc4net import (
     delete,
@@ -70,22 +48,40 @@ ZIP_EXPECTED = (
 )
 
 
+# Fixture compartilhada para inicializar servidores e fornecer endpoints
+@pytest.fixture(scope="module")
+def server_endpoints(request):
+    http_root, http_port = mock_httpd()
+    ftpd, ftp_port = mock_ftpd()
+
+    # Finalizer para encerrar servidores ao fim do módulo
+    def fin():
+        try:
+            ftpd.close_all()
+        except Exception:  # noqa: S110
+            pass
+
+    request.addfinalizer(fin)
+    return {
+        "http_root": http_root,
+        "http_port": http_port,
+        "ftp_port": ftp_port,
+        "ftp_url_prefix": f"ftp://localhost:{ftp_port}",
+    }
+
+
 class TestPythonBrfiedShortcutSyncHttp(TestCase):
-
-    def setUp(self):
-        http_root = TestPythonBrfiedShortcutSyncHttp.http_root
-        self.file_not_found = http_root + "/file_not_found"
-        self.file01_csv_url = http_root + "/file01.csv"
-        self.file01_zip_url = http_root + "/file01.zip"
-        self.file02_json_url = http_root + "/file02.json"
-        self.file02_zip_url = http_root + "/file02.zip"
-        self.echo_url = http_root + "/echo"
-        self.echo_json_url = http_root + "/echo.json"
-
-    @classmethod
-    def setUpClass(cls):
-        cls.http_root = mock_httpd()
-        cls.ftpd = mock_ftpd()
+    @pytest.fixture(autouse=True)
+    def _inject(self, server_endpoints):
+        self.http_root = server_endpoints["http_root"]
+        self.ftp_url_prefix = server_endpoints["ftp_url_prefix"]
+        self.file_not_found = self.http_root + "/file_not_found"
+        self.file01_csv_url = self.http_root + "/file01.csv"
+        self.file01_zip_url = self.http_root + "/file01.zip"
+        self.file02_json_url = self.http_root + "/file02.json"
+        self.file02_zip_url = self.http_root + "/file02.zip"
+        self.echo_url = self.http_root + "/echo"
+        self.echo_json_url = self.http_root + "/echo.json"
 
     # @httpretty.activate
     def test_get(self):
@@ -130,14 +126,14 @@ class TestPythonBrfiedShortcutSyncHttp(TestCase):
         )
 
     def test_get_zip_content_ftp(self):
-        self.assertEqual(FILE01_CSV_EXPECTED, get_zip_content("ftp://localhost:2121/file01.zip"))
+        self.assertEqual(FILE01_CSV_EXPECTED, get_zip_content(f"{self.ftp_url_prefix}/file01.zip"))
 
     def test_get_ftp(self):
-        self.assertEqual("pong", get("ftp://localhost:2121/ping.txt"))
+        self.assertEqual("pong", get(f"{self.ftp_url_prefix}/ping.txt"))
 
     def test_get_ftp_uses_stdlib(self):
         with patch("sc4net._ftp_get_with_stdlib", return_value=b"pong") as ftp_get:
-            self.assertEqual("pong", get("ftp://localhost:2121/ping.txt"))
+            self.assertEqual("pong", get(f"{self.ftp_url_prefix}/ping.txt"))
             ftp_get.assert_called_once()
 
     def test_post(self):
@@ -159,9 +155,10 @@ class TestZEdgeCases(TestCase):
     TestPythonBrfiedShortcutSyncHttp.setUpClass, which runs alphabetically first.
     """
 
-    http_root = "http://localhost:1234"
-
-    def setUp(self):
+    @pytest.fixture(autouse=True)
+    def _inject(self, server_endpoints):
+        self.http_root = server_endpoints["http_root"]
+        self.ftp_url_prefix = server_endpoints["ftp_url_prefix"]
         self.file01_csv_url = self.http_root + "/file01.csv"
         self.echo_url = self.http_root + "/echo"
         self.echo_json_url = self.http_root + "/echo.json"
@@ -187,18 +184,18 @@ class TestZEdgeCases(TestCase):
     # -- _ftp_get_with_stdlib: empty path (line 85) ---------------------------
 
     def test_ftp_empty_path(self):
-        self.assertRaises(HTTPException, get, "ftp://localhost:2121/")
+        self.assertRaises(HTTPException, get, f"{self.ftp_url_prefix}/")
 
     # -- _ftp_get_with_stdlib: timeout branch (line 92) -----------------------
 
     def test_ftp_with_timeout(self):
-        self.assertEqual("pong", get("ftp://localhost:2121/ping.txt", timeout=30))
+        self.assertEqual("pong", get(f"{self.ftp_url_prefix}/ping.txt", timeout=30))
 
     # -- _ftp_get_with_stdlib: except Exception (lines 97-98) ----------------
 
     def test_ftp_connection_error(self):
         with patch("sc4net.FTP", side_effect=Exception("forced ftp error")):
-            self.assertRaises(HTTPException, get, "ftp://localhost:2121/ping.txt")
+            self.assertRaises(HTTPException, get, f"{self.ftp_url_prefix}/ping.txt")
 
     # -- _http_get_with_stdlib: URLError (lines 109-110) ----------------------
 

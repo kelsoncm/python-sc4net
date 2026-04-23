@@ -1,10 +1,12 @@
-import pytest
+import socket
 from http.server import HTTPServer
 from threading import Thread
-from sc4net import get
-from .mocks import FILE_NOT_FOUND_ERROR_MESSAGE, MockHttpServerRequestHandler
 
-import socket
+import pytest
+
+from sc4net import get
+
+from .mocks import FILE_NOT_FOUND_ERROR_MESSAGE, MockHttpServerRequestHandler
 
 
 def get_free_port():

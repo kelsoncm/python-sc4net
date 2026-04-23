@@ -1,40 +1,7 @@
-"""
-sc4net
-------
-
-Atalhos para downloads HTTP(S) e FTP usando apenas a biblioteca padrão do Python,
-com utilitários para leitura de JSON e arquivos ZIP.
-
-Principais funcionalidades:
-
-- `get`: Faz download de conteúdo via HTTP(S) ou FTP.
-- `get_json`: Baixa e decodifica JSON.
-- `get_zip_content`: Baixa e extrai arquivos de dentro de ZIPs.
-- `get_zip_csv_content`: Baixa e extrai CSVs de ZIPs.
-- `post`/`post_json`: Envia requisições POST (com suporte a JSON).
-
-Todos os métodos utilizam apenas módulos da biblioteca padrão, sem dependências externas.
-
-Exemplo de uso:
-
-    from sc4net import get_json
-    dados = get_json('https://exemplo.com/dados.json')
-    print(dados)
-
-Licença: MIT
-Autor: Kelson da Costa Medeiros
-"""
-
 import csv
 import io
 import json
 from ftplib import FTP  # nosec S402  # noqa: S402
-
-#
-# Bandit S402: FTP-related module is being imported. FTP is considered insecure.
-#
-# This warning is intentionally ignored because FTP support is a required feature of this library.
-# The user is responsible for using FTP only in trusted environments.
 from http.client import HTTPException
 from io import BytesIO
 from typing import NoReturn, Optional, cast
@@ -161,7 +128,7 @@ def _merge_headers(headers):
     return result
 
 
-def _validate_web_url(url):
+def _validate_web_url(url: str) -> str:
     """
     Validates that a URL is HTTP or HTTPS and has a network location.
 
@@ -174,15 +141,15 @@ def _validate_web_url(url):
     :Examples:
 
         .. code-block:: python
-
             _validate_web_url("https://example.com")
     """
     parsed = urlparse(url)
     if parsed.scheme not in ("http", "https") or not parsed.netloc:
         _raise_http_exception(400, "Only http/https URLs are allowed", url)
+    return url
 
 
-def _ftp_get_with_stdlib(url, timeout=None) -> bytes:
+def _ftp_get_with_stdlib(url: str, timeout: float = None) -> bytes:
     """
     Downloads a file from an FTP server using only the Python standard library.
 
@@ -251,13 +218,9 @@ def _http_get_with_stdlib(url, headers=None, timeout=None) -> bytes:
 
             data = _http_get_with_stdlib("https://example.com/file.txt")
     """
-    _validate_web_url(url)
-    parsed = urlparse(url)
-    if parsed.scheme not in ("http", "https"):
-        _raise_http_exception(400, "Only http/https URLs are allowed", url)
-    request = Request(url, headers=_merge_headers(headers))
     try:
-        with urlopen(request, timeout=timeout) as response:
+        request = Request(_validate_web_url(url), headers=_merge_headers(headers))  # noqa: S310
+        with urlopen(request, timeout=timeout) as response:  # noqa: S310
             return response.read()
     except HTTPError as exc:
         _raise_http_exception(exc.code, exc.reason, url, dict(exc.headers or {}))
@@ -513,13 +476,10 @@ def post(url, data=None, json_data=None, headers=None, encoding="utf-8", decode=
     """
     timeout = kwargs.get("timeout")
     request_headers = _merge_headers(headers)
-    _validate_web_url(url)
-
     payload = _build_post_payload(data, json_data, request_headers, encoding)
-
-    request = Request(url, data=payload, headers=request_headers, method="POST")
+    request = Request(_validate_web_url(url), data=payload, headers=request_headers, method="POST")  # noqa: S310
     try:
-        with urlopen(request, timeout=timeout) as response:
+        with urlopen(request, timeout=timeout) as response:  # noqa: S310
             byte_array_content = response.read()
     except HTTPError as exc:
         _raise_http_exception(exc.code, exc.reason, url, dict(exc.headers or {}))
