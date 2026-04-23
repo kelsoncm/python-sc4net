@@ -89,9 +89,7 @@ class TestPythonBrfiedShortcutSyncHttp(TestCase):
 
     # @httpretty.activate
     def test_get(self):
-        self.assertRaisesRegex(
-            HTTPException, FILE_NOT_FOUND_ERROR_MESSAGE, get, self.file_not_found
-        )
+        self.assertRaisesRegex(HTTPException, FILE_NOT_FOUND_ERROR_MESSAGE, get, self.file_not_found)
 
         try:
             self.assertIsNotNone(get(self.file_not_found))
@@ -104,20 +102,12 @@ class TestPythonBrfiedShortcutSyncHttp(TestCase):
         self.assertRaises(UnicodeDecodeError, get, self.file01_zip_url, None)
 
         self.assertEqual(FILE01_CSV_EXPECTED, get(self.file01_csv_url))
-        self.assertEqual(
-            FILE01_CSV_EXPECTED_BINARY, get(self.file01_csv_url, encoding=None)
-        )
-        self.assertEqual(
-            FILE01_CSV_EXPECTED_LATIN1, get(self.file01_csv_url, encoding="latin1")
-        )
+        self.assertEqual(FILE01_CSV_EXPECTED_BINARY, get(self.file01_csv_url, encoding=None))
+        self.assertEqual(FILE01_CSV_EXPECTED_LATIN1, get(self.file01_csv_url, encoding="latin1"))
 
         self.assertEqual(FILE02_JSON_EXPECTED, get(self.file02_json_url))
-        self.assertEqual(
-            FILE02_JSON_EXPECTED_BINARY, get(self.file02_json_url, encoding=None)
-        )
-        self.assertEqual(
-            FILE02_JSON_EXPECTED_LATIN1, get(self.file02_json_url, encoding="latin1")
-        )
+        self.assertEqual(FILE02_JSON_EXPECTED_BINARY, get(self.file02_json_url, encoding=None))
+        self.assertEqual(FILE02_JSON_EXPECTED_LATIN1, get(self.file02_json_url, encoding="latin1"))
 
         self.assertEqual(ZIP_EXPECTED, get(self.file01_zip_url, encoding=None))
 
@@ -140,9 +130,7 @@ class TestPythonBrfiedShortcutSyncHttp(TestCase):
         )
 
     def test_get_zip_content_ftp(self):
-        self.assertEqual(
-            FILE01_CSV_EXPECTED, get_zip_content("ftp://localhost:2121/file01.zip")
-        )
+        self.assertEqual(FILE01_CSV_EXPECTED, get_zip_content("ftp://localhost:2121/file01.zip"))
 
     def test_get_ftp(self):
         self.assertEqual("pong", get("ftp://localhost:2121/ping.txt"))
@@ -155,9 +143,7 @@ class TestPythonBrfiedShortcutSyncHttp(TestCase):
     def test_post(self):
         self.assertEqual("a=1&b=2", post(self.echo_url, data={"a": "1", "b": "2"}))
         self.assertEqual("hello", post(self.echo_url, data="hello"))
-        self.assertRaisesRegex(
-            HTTPException, FILE_NOT_FOUND_ERROR_MESSAGE, post, self.file_not_found
-        )
+        self.assertRaisesRegex(HTTPException, FILE_NOT_FOUND_ERROR_MESSAGE, post, self.file_not_found)
 
     def test_post_json(self):
         self.assertEqual(
