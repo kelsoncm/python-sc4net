@@ -1,7 +1,7 @@
 How to contribute
 =================
 
-.. code-block:: bash
+.. code-block::bash
     git clone git@github.com:kelsoncm/sc4net.git ~/projetos/PESSOAL/sc4net
     code ~/projetos/PESSOAL/sc4net
 
@@ -13,7 +13,7 @@ before each commit and coverage regression checks before each push.
 
 **Setup:**
 
-.. code-block:: bash
+.. code-block::bash
     python -m venv .venv
     .venv\bin\activate
     .\.venv\Scripts\Activate.ps1
@@ -24,7 +24,7 @@ before each commit and coverage regression checks before each push.
 
 Run manually:
 
-.. code-block:: bash
+.. code-block::bash
     pre-commit run --all-files
     pre-commit run --hook-stage pre-push --all-files
 
