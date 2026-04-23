@@ -2,7 +2,8 @@
 Guia de Introdução
 =====================
 
-O **sc4net** é um pacote Python que fornece atalhos para downloads HTTP(S) e FTP usando apenas a biblioteca padrão, além de utilitários para leitura de JSON e arquivos ZIP.
+O **sc4net** é um pacote Python que fornece atalhos para downloads HTTP(S) e FTP usando apenas a
+biblioteca padrão, além de utilitários para leitura de JSON e arquivos ZIP.
 
 Instalação
 ----------
