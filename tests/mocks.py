@@ -36,9 +36,7 @@ from pyftpdlib.servers import FTPServer
 FILE_NOT_FOUND_ERROR_MESSAGE = "File not found"
 
 
-dir_path = os.path.realpath(
-    os.path.join(os.path.dirname(os.path.realpath(__file__)), "assets")
-)
+dir_path = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "assets"))
 
 
 def mock_ftpd():
@@ -64,9 +62,7 @@ def mock_ftpd():
 class MockHttpServerRequestHandler(BaseHTTPRequestHandler):
 
     def __init__(self, request, client_address, server):
-        super(MockHttpServerRequestHandler, self).__init__(
-            request, client_address, server
-        )
+        super(MockHttpServerRequestHandler, self).__init__(request, client_address, server)
 
     def log_error(self, format, *args):
         pass
@@ -78,9 +74,7 @@ class MockHttpServerRequestHandler(BaseHTTPRequestHandler):
         parts = self.path.split("/")
         filepath = parts[len(parts) - 1]
         safe_filepath = os.path.basename(filepath)
-        if safe_filepath in ("", ".", "..") or not re.fullmatch(
-            r"[A-Za-z0-9._-]+", safe_filepath
-        ):
+        if safe_filepath in ("", ".", "..") or not re.fullmatch(r"[A-Za-z0-9._-]+", safe_filepath):
             self.send_error(404, FILE_NOT_FOUND_ERROR_MESSAGE)
             return
 
@@ -129,9 +123,7 @@ def mock_httpd():
     # mock_http_server_port = get_free_port()
 
     mock_http_server_port = 1234
-    mock_http_server = HTTPServer(
-        ("localhost", mock_http_server_port), MockHttpServerRequestHandler
-    )
+    mock_http_server = HTTPServer(("localhost", mock_http_server_port), MockHttpServerRequestHandler)
 
     # Start running mock server in a separate thread.
     # Daemon threads automatically shut down when the main process exits.
