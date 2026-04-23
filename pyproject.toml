@@ -37,6 +37,7 @@ dev = [
     "pytest-coverage-gate>=1.0.3",
     "responses>=0.26.0",
     "pytest-xdist>=3.8.0",
+    "pyftpdlib>=2.2.0",
 ]
 
 [project.urls]
